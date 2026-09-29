@@ -1,0 +1,843 @@
+<title>nexus noki</title>
+<meta name="description" content="nn (nexus noki): open-source cameras, sensors and automations that run on your own hardware, on your own network.">
+<link rel="canonical" href="https://www.hexnok.com/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --ground: #f2f4f1;
+  --panel: #ffffff;
+  --panel-2: #e7ebe6;
+  --ink: #14201b;
+  --ink-2: #3f4d46;
+  --muted: #6a7870;
+  --line: #d5dcd6;
+  --accent: #17735a;
+  --accent-ink: #ffffff;
+  --accent-soft: #d8ece4;
+  --signal: #c98a1c;
+  --warn: #b5452f;
+  --nav-bg: rgba(242, 244, 241, .86);
+  --shadow: 0 1px 2px rgba(20, 32, 27, .06), 0 8px 24px rgba(20, 32, 27, .06);
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --gutter: clamp(16px, 4vw, 48px);
+  --maxw: 1160px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground: #0d1411; --panel: #141d19; --panel-2: #1b2621; --ink: #e5ece8; --ink-2: #b9c5bf;
+    --muted: #8a9a92; --line: #26332d; --accent: #54c29c; --accent-ink: #08130e;
+    --accent-soft: #173229; --signal: #e6ad4a; --warn: #e07a62; --nav-bg: rgba(13, 20, 17, .84);
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #0d1411; --panel: #141d19; --panel-2: #1b2621; --ink: #e5ece8; --ink-2: #b9c5bf;
+  --muted: #8a9a92; --line: #26332d; --accent: #54c29c; --accent-ink: #08130e;
+  --accent-soft: #173229; --signal: #e6ad4a; --warn: #e07a62; --nav-bg: rgba(13, 20, 17, .84);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0; background: var(--ground); color: var(--ink);
+  font: 400 17px/1.6 var(--body); -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--display); color: var(--ink); text-wrap: balance; margin: 0; }
+p { margin: 0; }
+code, .mono { font-family: var(--mono); font-size: .88em; }
+
+/* ---------- top bar ---------- */
+.nav {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: var(--nav-bg); backdrop-filter: saturate(1.4) blur(10px);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-in {
+  max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter);
+  height: 60px; display: flex; align-items: center; gap: 24px;
+}
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+.brand svg { width: 30px; height: 30px; flex: none; }
+.brand b { font: 800 22px/1 var(--display); letter-spacing: -.02em; }
+.brand span { font: 500 13px/1 var(--mono); color: var(--muted); letter-spacing: .04em; }
+.nav-links { margin-left: auto; display: flex; gap: 4px; list-style: none; padding: 0; }
+.nav-links a {
+  display: block; padding: 8px 14px; border-radius: 8px; text-decoration: none;
+  color: var(--ink-2); font-weight: 500; font-size: 15px;
+}
+.nav-links a:hover { background: var(--panel-2); color: var(--ink); }
+.nav-links a[aria-current="page"] { color: var(--ink); }
+@media (max-width: 560px) {
+  .brand span { display: none; }
+  .nav-in { gap: 8px; }
+  .nav-links a { padding: 8px 9px; font-size: 14px; }
+}
+
+/* ---------- slides ---------- */
+.slide { padding-block: clamp(64px, 10vw, 120px); padding-inline: var(--gutter); }
+.slide + .slide { border-top: 1px solid var(--line); }
+.wrap { max-width: var(--maxw); margin: 0 auto; }
+.eyebrow {
+  font: 500 13px/1 var(--mono); text-transform: uppercase; letter-spacing: .14em;
+  color: var(--accent); display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+}
+.eyebrow::before { content: ""; width: 22px; height: 2px; background: currentColor; }
+h2 { font-size: clamp(32px, 4.6vw, 52px); font-weight: 700; line-height: 1.06; letter-spacing: -.025em; max-width: 20ch; }
+.lede { margin-top: 18px; font-size: clamp(17px, 1.6vw, 20px); color: var(--ink-2); max-width: 62ch; }
+.alt { background: var(--panel); }
+
+/* ---------- hero ---------- */
+.hero { padding-top: clamp(40px, 7vw, 88px); }
+.hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(28px, 5vw, 64px); align-items: center; }
+.hero h1 {
+  font-size: clamp(44px, 7.4vw, 92px); font-weight: 800; line-height: .96; letter-spacing: -.04em;
+}
+.hero h1 em { font-style: normal; color: var(--accent); }
+.name-card {
+  display: inline-flex; align-items: baseline; gap: 12px; margin-bottom: 26px;
+  font-family: var(--mono); font-size: 14px; color: var(--ink-2);
+  padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel);
+}
+.name-card b { font-family: var(--display); font-size: 17px; color: var(--ink); letter-spacing: -.01em; }
+.name-card i { font-style: normal; color: var(--muted); }
+.hero .lede { margin-top: 24px; }
+.ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 10px; padding: 13px 20px; border-radius: 10px;
+  font: 600 16px/1 var(--body); text-decoration: none; border: 1px solid transparent;
+  transition: transform .15s ease, background .15s ease;
+}
+.btn svg { width: 18px; height: 18px; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { transform: translateY(-1px); }
+.btn.ghost { color: var(--ink); border-color: var(--line); background: var(--panel); }
+.btn.ghost:hover { border-color: var(--muted); }
+.mesh {
+  position: relative; aspect-ratio: 1 / 1; max-width: 100%; width: 100%;
+  border-radius: 20px; background: var(--panel); border: 1px solid var(--line); overflow: hidden;
+}
+.mesh canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mesh-legend {
+  position: absolute; left: 14px; bottom: 12px; right: 14px; display: flex; flex-wrap: wrap; gap: 6px 16px;
+  font: 400 12px/1.2 var(--mono); color: var(--muted);
+}
+.mesh-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.mesh-legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.mesh-note {
+  position: absolute; top: 12px; left: 14px; right: 14px; font: 500 12px/1.3 var(--mono); color: var(--muted);
+  display: flex; justify-content: space-between; gap: 12px;
+}
+.mesh-note b { color: var(--accent); font-weight: 500; }
+@media (max-width: 860px) {
+  .hero .wrap { grid-template-columns: 1fr; }
+  .mesh { aspect-ratio: 4 / 3; }
+}
+
+/* ---------- problem ---------- */
+.problems { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 48px; }
+.problem {
+  display: grid; grid-template-columns: 56px 1fr; gap: 18px; align-items: start;
+  padding: 26px; background: var(--ground); border: 1px solid var(--line); border-radius: 14px;
+}
+.problem .ico {
+  width: 56px; height: 56px; border-radius: 12px; display: grid; place-items: center;
+  background: var(--panel-2); color: var(--warn);
+}
+.problem .ico svg { width: 30px; height: 30px; }
+.problem h3 { font-size: 21px; font-weight: 700; letter-spacing: -.01em; line-height: 1.2; }
+.problem p { margin-top: 8px; color: var(--ink-2); font-size: 16px; }
+@media (max-width: 760px) { .problems { grid-template-columns: 1fr; } .problem { grid-template-columns: 1fr; } }
+
+/* ---------- promises ---------- */
+.promises { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; margin-top: 48px; border-top: 1px solid var(--line); }
+.promise { padding: 32px 32px 32px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 44px 1fr; gap: 18px; }
+.promise:nth-child(even) { padding-left: 32px; padding-right: 0; border-left: 1px solid var(--line); }
+.promise .ico { color: var(--accent); }
+.promise .ico svg { width: 36px; height: 36px; }
+.promise h3 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
+.promise p { margin-top: 10px; color: var(--ink-2); }
+.promise .fixes { margin-top: 14px; font: 400 13px/1.4 var(--mono); color: var(--muted); }
+.promise .fixes s { text-decoration-color: var(--warn); text-decoration-thickness: 1.5px; color: var(--ink-2); }
+@media (max-width: 760px) {
+  .promises { grid-template-columns: 1fr; }
+  .promise, .promise:nth-child(even) { padding: 26px 0; border-left: 0; }
+}
+
+/* ---------- features (alternating) ---------- */
+.features { display: flex; flex-direction: column; gap: clamp(56px, 8vw, 104px); margin-top: 64px; }
+.feature { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 72px); align-items: center; }
+.feature:nth-child(even) .feature-art { order: -1; }
+.feature h3 { font-size: clamp(26px, 3vw, 36px); font-weight: 700; letter-spacing: -.02em; line-height: 1.08; }
+.feature p { margin-top: 14px; color: var(--ink-2); }
+.feature ul { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.feature li { display: grid; grid-template-columns: 20px 1fr; gap: 10px; color: var(--ink-2); font-size: 16px; }
+.feature li svg { width: 18px; height: 18px; margin-top: 4px; color: var(--accent); }
+.tag { font: 500 12px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.feature-art {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
+  padding: 22px; min-width: 0;
+}
+@media (max-width: 860px) {
+  .feature { grid-template-columns: 1fr; }
+  .feature:nth-child(even) .feature-art { order: 0; }
+}
+
+/* feature art: camera */
+.cam-frame {
+  position: relative; aspect-ratio: 16 / 10; border-radius: 10px; overflow: hidden;
+  background: linear-gradient(180deg, #29342f 0%, #1c2521 58%, #3a3a2e 58%, #2c2b22 100%);
+}
+.cam-frame svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cam-bar { display: flex; justify-content: space-between; gap: 10px; margin-top: 14px; font: 400 13px/1.3 var(--mono); color: var(--muted); flex-wrap: wrap; }
+.cam-bar b { color: var(--ink); font-weight: 500; }
+.dot-live { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--warn); margin-right: 6px; vertical-align: 1px; }
+
+/* feature art: automation rule */
+.rule { font: 400 14px/1.7 var(--mono); color: var(--ink-2); }
+.rule .k { color: var(--accent); font-weight: 500; }
+.rule .s { color: var(--signal); }
+.rule-head { display: flex; justify-content: space-between; font: 500 12px/1 var(--mono); color: var(--muted); letter-spacing: .08em; text-transform: uppercase; padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+.rule-path { display: flex; align-items: center; gap: 8px; margin-top: 18px; flex-wrap: wrap; font: 400 13px/1 var(--mono); color: var(--muted); }
+.chip { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--ground); color: var(--ink); }
+.chip.off { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--warn); }
+
+/* feature art: terminal */
+.term { background: #0f1714; color: #d7e3dd; border-radius: 10px; padding: 16px 18px; font: 400 13.5px/1.7 var(--mono); overflow-x: auto; }
+.term .p { color: #54c29c; }
+.term .c { color: #7f9189; }
+.devices { margin-top: 14px; display: grid; gap: 0; font-size: 14px; }
+.devices div { display: grid; grid-template-columns: 1.3fr 1fr auto; gap: 10px; padding: 9px 2px; border-bottom: 1px solid var(--line); align-items: center; }
+.devices div:last-child { border-bottom: 0; }
+.devices .mono { color: var(--muted); }
+.st { font: 500 12px/1 var(--mono); padding: 5px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+
+/* feature art: update flow */
+.ota { display: grid; gap: 12px; }
+.ota-row { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 14px; border-radius: 12px; background: var(--ground); border: 1px solid var(--line); }
+.ota-row .v { font: 500 15px/1 var(--mono); color: var(--ink); }
+.ota-row .d { font-size: 14px; color: var(--ink-2); }
+.ota-row svg { width: 22px; height: 22px; }
+.ok { color: var(--accent); } .bad { color: var(--warn); }
+
+/* ---------- architecture ---------- */
+.arch { margin-top: 48px; overflow-x: auto; border: 1px solid var(--line); border-radius: 18px; background: var(--ground); }
+.arch svg { display: block; width: 100%; min-width: 720px; height: auto; }
+.arch-note { margin-top: 14px; font-size: 15px; color: var(--muted); max-width: 70ch; }
+
+/* ---------- hardware ---------- */
+.boards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 40px; }
+.board { padding: 22px; border-radius: 14px; border: 1px solid var(--line); background: var(--panel); }
+.board .role { font: 500 12px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.board h3 { margin-top: 12px; font-size: 21px; font-weight: 700; letter-spacing: -.01em; }
+.board p { margin-top: 6px; font-size: 15px; color: var(--ink-2); }
+@media (max-width: 860px) { .boards { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 460px) { .boards { grid-template-columns: 1fr; } }
+
+/* ---------- involve ---------- */
+.involve { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(28px, 5vw, 72px); align-items: start; }
+.roles { display: flex; flex-wrap: wrap; gap: 10px; }
+.roles a {
+  padding: 10px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--ground);
+  color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 500;
+}
+.roles a:hover { border-color: var(--accent); color: var(--accent); }
+.honest { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: 16px; }
+@media (max-width: 860px) { .involve { grid-template-columns: 1fr; } }
+
+/* ---------- footer ---------- */
+footer { padding: 40px var(--gutter) 48px; border-top: 1px solid var(--line); }
+.foot { max-width: var(--maxw); margin: 0 auto; display: flex; flex-wrap: wrap; gap: 16px 32px; justify-content: space-between; color: var(--muted); font-size: 14px; }
+.foot nav { display: flex; gap: 20px; flex-wrap: wrap; }
+.foot a { color: var(--ink-2); text-decoration: none; }
+.foot a:hover { color: var(--accent); }
+
+/* ---------- slide pager (desktop) ---------- */
+.pager { position: fixed; right: 18px; top: 50%; transform: translateY(-50%); z-index: 15; display: flex; flex-direction: column; gap: 10px; }
+.pager a { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--muted); display: block; }
+.pager a.on { background: var(--accent); border-color: var(--accent); }
+@media (max-width: 1280px) { .pager { display: none; } }
+</style>
+
+<!-- icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-eye-cloud" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 22h15a5 5 0 0 0 .6-9.96A7 7 0 0 0 11 10.5 5.75 5.75 0 0 0 9 22Z"/>
+      <path d="M11.5 16.5s2-3 5-3 5 3 5 3-2 3-5 3-5-3-5-3Z"/><circle cx="16.5" cy="16.5" r="1.2" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-brick" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="9" width="24" height="14" rx="1.5"/><path d="M4 16h24M12 9v7M20 16v7M16 9v7M8 16v7M24 9v7"/>
+      <path d="M22 4l6 3M10 4 4 7" opacity=".6"/>
+    </symbol>
+    <symbol id="i-lock-wrench" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17.5 6.5a5 5 0 0 0-6.2 6.2L5 19l3 3 6.3-6.3a5 5 0 0 0 6.2-6.2l-3 3-2.4-.6-.6-2.4Z"/>
+      <rect x="19" y="19" width="9" height="8" rx="1.5"/><path d="M21 19v-2a2.5 2.5 0 0 1 5 0v2"/>
+    </symbol>
+    <symbol id="i-broken" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="6.5" cy="16" r="3"/><circle cx="25.5" cy="16" r="3"/>
+      <path d="M9.5 16h4M18.5 16h4M14 11l1.5 4M18 21l-1.5-4"/><path d="M16 5v3M16 24v3" opacity=".6"/>
+    </symbol>
+    <symbol id="i-home" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 14.5 16 5l11 9.5V26a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1Z"/><circle cx="16" cy="18" r="3"/><path d="M16 21v6"/>
+    </symbol>
+    <symbol id="i-key" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 7h11l5 5v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1Z"/><path d="M19 7v5h5"/>
+      <path d="m12 18 2.5 2.5L20 15"/>
+    </symbol>
+    <symbol id="i-mesh" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="7" cy="9" r="2.5"/><circle cx="25" cy="8" r="2.5"/><circle cx="16" cy="17" r="2.5"/><circle cx="8" cy="25" r="2.5"/><circle cx="24" cy="24" r="2.5"/>
+      <path d="m9.2 10.3 4.6 5.2M22.9 9.5l-4.8 5.6M14 18.8l-4.3 4.6M18.1 18.6l4 3.9M9.5 9h13M8 11.5v11"/>
+    </symbol>
+    <symbol id="i-board" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="6" width="20" height="20" rx="2"/><rect x="11" y="11" width="10" height="10" rx="1"/>
+      <path d="M11 3v3M16 3v3M21 3v3M11 26v3M16 26v3M21 26v3M3 11h3M3 16h3M3 21h3M26 11h3M26 16h3M26 21h3"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m4.5 10.5 3.5 3.5 7.5-8"/>
+    </symbol>
+    <symbol id="i-x" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="m5.5 5.5 9 9M14.5 5.5l-9 9"/>
+    </symbol>
+    <symbol id="i-undo" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M7 5 3 9l4 4"/><path d="M3.5 9H12a5 5 0 0 1 0 10h-2"/>
+    </symbol>
+    <symbol id="i-book" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 4.5A1.5 1.5 0 0 1 4.5 3H10v14H4.5A1.5 1.5 0 0 1 3 15.5ZM17 4.5A1.5 1.5 0 0 0 15.5 3H10v14h5.5a1.5 1.5 0 0 0 1.5-1.5Z"/>
+    </symbol>
+    <symbol id="i-gh" viewBox="0 0 16 16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></symbol>
+    <symbol id="i-logo" viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="14.5" stroke="currentColor" stroke-width="1.6" opacity=".35"/>
+      <path d="M9 22V10l14 12V10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="9" cy="10" r="2.6" fill="var(--signal)"/><circle cx="23" cy="22" r="2.6" fill="var(--signal)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="#home" aria-label="nn, nexus noki: home">
+      <svg style="color:var(--accent)"><use href="#i-logo"/></svg>
+      <b>nn</b><span>nexus noki</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#home" aria-current="page">Home</a></li>
+      <li><a href="https://github.com/NexusNoki" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="https://docs.hexnok.com/" target="_blank" rel="noopener">Documentation</a></li>
+    </ul>
+  </div>
+</header>
+
+<nav class="pager" aria-label="Slides">
+  <a href="#home" aria-label="Home"></a>
+  <a href="#why" aria-label="Why nn"></a>
+  <a href="#promises" aria-label="Philosophy"></a>
+  <a href="#what" aria-label="What nn does"></a>
+  <a href="#how" aria-label="How it fits"></a>
+  <a href="#boards" aria-label="Hardware"></a>
+  <a href="#join" aria-label="Get involved"></a>
+</nav>
+
+<main>
+<!-- ===== 1. banner ===== -->
+<section class="slide hero" id="home">
+  <div class="wrap">
+    <div>
+      <div class="name-card"><b>nn</b> = <span><b>n</b>exus <b>n</b>oki</span> <i>· open source</i></div>
+      <h1>A smart home that <em>answers to you</em>.</h1>
+      <p class="lede">nn runs your cameras, sensors and automations on boards you own, on your own
+        network. No cloud account, no subscription, and no company that can switch your house off.</p>
+      <div class="ctas">
+        <a class="btn primary" href="https://docs.hexnok.com/getting-started/index.html" target="_blank" rel="noopener">
+          <svg><use href="#i-book"/></svg>Get started</a>
+        <a class="btn ghost" href="https://github.com/NexusNoki" target="_blank" rel="noopener">
+          <svg><use href="#i-gh"/></svg>Source on GitHub</a>
+      </div>
+    </div>
+    <figure class="mesh" aria-label="Illustration: a hub at the centre, cameras around it, and sensors linked to each other in a mesh" style="margin:0">
+      <canvas id="mesh"></canvas>
+      <div class="mesh-note"><span>your home network</span><span>cloud: <b>not needed</b></span></div>
+      <div class="mesh-legend">
+        <span><i style="background:var(--accent)"></i>hub</span>
+        <span><i style="background:var(--ink-2);border-radius:2px"></i>camera</span>
+        <span><i style="background:var(--signal)"></i>sensor (Thread mesh)</span>
+      </div>
+    </figure>
+  </div>
+</section>
+
+<!-- ===== 2. background ===== -->
+<section class="slide alt" id="why">
+  <div class="wrap">
+    <div class="eyebrow">Why nn exists</div>
+    <h2>Most smart homes are rented, not owned.</h2>
+    <p class="lede">You buy the hardware, but the vendor keeps the keys. Four things go wrong again and again.</p>
+    <div class="problems">
+      <article class="problem">
+        <div class="ico"><svg><use href="#i-eye-cloud"/></svg></div>
+        <div>
+          <h3>Your home lives on someone else's server</h3>
+          <p>Cameras send your living room to a vendor's cloud. You can't see who looks at it, how
+            long it is kept, or where it goes after a breach or a takeover.</p>
+        </div>
+      </article>
+      <article class="problem">
+        <div class="ico"><svg><use href="#i-brick"/></svg></div>
+        <div>
+          <h3>The company closes, the device becomes a brick</h3>
+          <p>When the servers shut down or the app leaves the store, hardware that still works
+            stops working overnight. You paid for it; you can't keep it alive.</p>
+        </div>
+      </article>
+      <article class="problem">
+        <div class="ico"><svg><use href="#i-lock-wrench"/></svg></div>
+        <div>
+          <h3>Broken, and nobody is allowed to fix it</h3>
+          <p>Locked bootloaders, closed firmware, no spare parts. Once updates stop, security holes
+            stay open, and the only repair left is the bin.</p>
+        </div>
+      </article>
+      <article class="problem">
+        <div class="ico"><svg><use href="#i-broken"/></svg></div>
+        <div>
+          <h3>Lose the hub or the internet, lose the automations</h3>
+          <p>A switch and a lamp in the same room, yet the decision travels to a data centre and
+            back. When the link or the hub drops, the house stops listening.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3. philosophy ===== -->
+<section class="slide" id="promises">
+  <div class="wrap">
+    <div class="eyebrow">Philosophy</div>
+    <h2>Four promises behind every decision.</h2>
+    <p class="lede">Each one answers one of those problems. They are the rules nn is built by,
+      not features that can be switched off later.</p>
+    <div class="promises">
+      <article class="promise">
+        <div class="ico"><svg><use href="#i-home"/></svg></div>
+        <div>
+          <h3>Local first, no cloud</h3>
+          <p>Video, sensor readings and automations stay in your home. The internet is optional:
+            when it drops, cameras still record and lights still switch. Remote access is yours
+            to add, behind your own login.</p>
+          <div class="fixes">answers <s>your home on someone else's server</s></div>
+        </div>
+      </article>
+      <article class="promise">
+        <div class="ico"><svg><use href="#i-key"/></svg></div>
+        <div>
+          <h3>You own the firmware</h3>
+          <p>Every device runs firmware you can rebuild from public source and update from your own
+            hub. No vendor account, no locked bootloader, no update server that can disappear.</p>
+          <div class="fixes">answers <s>the device becomes a brick</s></div>
+        </div>
+      </article>
+      <article class="promise">
+        <div class="ico"><svg><use href="#i-mesh"/></svg></div>
+        <div>
+          <h3>Devices act on their own</h3>
+          <p>Automations are compiled on the hub and run on the sensors themselves, over the Thread
+            mesh. A button still switches a lamp while the hub is off or restarting.</p>
+          <div class="fixes">answers <s>lose the hub, lose the automations</s></div>
+        </div>
+      </article>
+      <article class="promise">
+        <div class="ico"><svg><use href="#i-board"/></svg></div>
+        <div>
+          <h3>Cheap, off-the-shelf boards</h3>
+          <p>ESP32 modules, a BeagleY-AI, an Orange Pi: boards anyone can buy. Replace a broken part
+            yourself, and keep what you learn for your next project.</p>
+          <div class="fixes">answers <s>nobody is allowed to fix it</s></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 4. what nn does ===== -->
+<section class="slide alt" id="what">
+  <div class="wrap">
+    <div class="eyebrow">What nn does</div>
+    <h2>Cameras, sensors and a hub that work together.</h2>
+    <div class="features">
+
+      <article class="feature">
+        <div>
+          <div class="tag">Cameras</div>
+          <h3>Cameras that see, and keep what they see at home</h3>
+          <p>Motion is checked five times a second. Only when something moves does the object
+            detector wake up, on the camera's own AI accelerator or on the hub's, so the chip stays
+            cool and the recordings stay yours.</p>
+          <ul>
+            <li><svg><use href="#i-check"/></svg><span>Linux cameras (BeagleY-AI) and FreeRTOS cameras (ESP32-P4)</span></li>
+            <li><svg><use href="#i-check"/></svg><span>Live view in the browser, with event clips and detections</span></li>
+            <li><svg><use href="#i-check"/></svg><span>Swap in your own detection model without touching code</span></li>
+          </ul>
+        </div>
+        <figure class="feature-art" style="margin:0" aria-label="Illustration: a camera view with a person detected">
+          <div class="cam-frame">
+            <svg viewBox="0 0 320 200" aria-hidden="true">
+              <rect x="30" y="40" width="70" height="76" fill="#34423c"/><rect x="38" y="48" width="54" height="34" fill="#4d6a5e" opacity=".7"/>
+              <rect x="230" y="70" width="64" height="46" rx="3" fill="#2f3a35"/>
+              <rect x="120" y="96" width="120" height="22" rx="3" fill="#4a4636"/>
+              <circle cx="178" cy="66" r="12" fill="#8fa89c"/>
+              <path d="M162 84h32l6 46h-10l-3 42h-9l-2-30-2 30h-9l-3-42h-10Z" fill="#8fa89c"/>
+              <rect x="150" y="48" width="58" height="128" fill="none" stroke="#54c29c" stroke-width="2"/>
+              <rect x="150" y="34" width="84" height="15" fill="#54c29c"/>
+              <text x="155" y="45" font-family="IBM Plex Mono, monospace" font-size="10" fill="#08130e">person 0.91</text>
+              <text x="10" y="192" font-family="IBM Plex Mono, monospace" font-size="10" fill="#d7e3dd" opacity=".85">2026-09-29 19:42:07</text>
+            </svg>
+          </div>
+          <div class="cam-bar"><span><span class="dot-live"></span><b>Front door</b> · live</span><span>motion → detect on NPU</span></div>
+        </figure>
+      </article>
+
+      <article class="feature">
+        <div>
+          <div class="tag">Sensors</div>
+          <h3>Sensors that act on their own</h3>
+          <p>Buttons, lights and sensors talk to each other over a Thread mesh radio. You write the
+            rule in the hub's web app; the hub compiles it and hands it to the devices, which run
+            it themselves.</p>
+          <ul>
+            <li><svg><use href="#i-check"/></svg><span>No round trip to a server for a light switch</span></li>
+            <li><svg><use href="#i-check"/></svg><span>A Linux camera can double as the mesh gateway</span></li>
+            <li><svg><use href="#i-check"/></svg><span>The hub keeps the history and fills in what the radio missed</span></li>
+          </ul>
+        </div>
+        <figure class="feature-art" style="margin:0" aria-label="Illustration: an automation rule that runs on the devices">
+          <div class="rule-head"><span>Automation · hallway</span><span class="ok">running on 2 devices</span></div>
+          <div class="rule">
+            <span class="k">when</span> button <span class="s">hall-switch</span> is pressed<br>
+            <span class="k">then</span> toggle light <span class="s">hall-lamp</span><br>
+            <span class="k">and</span> if <span class="s">hall-motion</span> sees nothing for 5 min<br>
+            <span class="k">then</span> turn <span class="s">hall-lamp</span> off
+          </div>
+          <div class="rule-path">
+            <span class="chip">hall-switch</span>→<span class="chip">hall-lamp</span>
+            <span style="margin-left:auto">hub:</span><span class="chip off">not required</span>
+          </div>
+        </figure>
+      </article>
+
+      <article class="feature">
+        <div>
+          <div class="tag">Hub</div>
+          <h3>One hub, set up with one script</h3>
+          <p>An Orange Pi 6 Plus or any Debian machine becomes the hub. It sets new devices up over
+            Bluetooth, keeps their records, serves the web app and records camera events. Running
+            the script again is the update.</p>
+          <ul>
+            <li><svg><use href="#i-check"/></svg><span>Web app for devices, cameras, automations and logs</span></li>
+            <li><svg><use href="#i-check"/></svg><span>Flash a brand-new board straight from the browser</span></li>
+            <li><svg><use href="#i-check"/></svg><span>Look in from outside only if you choose, through your own tunnel and login</span></li>
+          </ul>
+        </div>
+        <figure class="feature-art" style="margin:0" aria-label="Illustration: the install command and the hub's device list">
+          <div class="term"><span class="p">$</span> sudo ./deploy/install-hub.sh --user you<br><span class="c">== hub package -&gt; /opt/nn-hub/venv</span><br><span class="c">== nn-hub.service</span><br>nn-hub is running: open http://hub.local:8769/devices</div>
+          <div class="devices">
+            <div><span>front-door</span><span class="mono">camera</span><span class="st">streaming</span></div>
+            <div><span>hall-switch</span><span class="mono">sensor</span><span class="st">online</span></div>
+            <div><span>garage-gw</span><span class="mono">gateway</span><span class="st">online</span></div>
+          </div>
+        </figure>
+      </article>
+
+      <article class="feature">
+        <div>
+          <div class="tag">Updates</div>
+          <h3>Updates you control, from your own hub</h3>
+          <p>The hub signs every firmware image and sends it over the air. A device installs only an
+            image it can verify, and goes back to the previous one by itself if the new one fails.
+            You can rebuild every image from the public source.</p>
+          <ul>
+            <li><svg><use href="#i-check"/></svg><span>Signed images, verified on the device</span></li>
+            <li><svg><use href="#i-check"/></svg><span>Automatic rollback when an update misbehaves</span></li>
+            <li><svg><use href="#i-check"/></svg><span>You decide when a version reaches the whole fleet</span></li>
+          </ul>
+        </div>
+        <figure class="feature-art ota" style="margin:0" aria-label="Illustration: a verified update and a rolled-back update">
+          <div class="ota-row"><span class="v">0.0.55</span><span class="d">signature verified · installed</span><svg class="ok"><use href="#i-check"/></svg></div>
+          <div class="ota-row"><span class="v">0.0.56</span><span class="d">failed its health check · rolled back to 0.0.55</span><svg class="bad"><use href="#i-undo"/></svg></div>
+          <div class="ota-row"><span class="v">0.0.57</span><span class="d">not signed by your hub · refused</span><svg class="bad"><use href="#i-x"/></svg></div>
+        </figure>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== 5. architecture ===== -->
+<section class="slide" id="how">
+  <div class="wrap">
+    <div class="eyebrow">How it fits together</div>
+    <h2>Everything talks inside your home.</h2>
+    <p class="lede">The dashed path is the only one that leaves the house, and it exists only if you add it.</p>
+    <div class="arch">
+      <svg viewBox="0 0 960 430" role="img" aria-label="Diagram: phone or browser reaches the hub on the home network, or optionally through a reverse proxy. The hub talks to the media server, the gateway and the cameras. Sensors form a Thread mesh and reach the hub through a gateway or through a Linux camera acting as a gateway.">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10Z" fill="var(--muted)"/></marker>
+        </defs>
+        <style>
+          .bx { fill: var(--panel); stroke: var(--line); stroke-width: 1.5; }
+          .bx.hub { fill: var(--accent-soft); stroke: var(--accent); }
+          .t { font: 600 15px var(--body); fill: var(--ink); }
+          .s { font: 400 12px var(--mono); fill: var(--muted); }
+          .ln { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+          .mesh-ln { stroke: var(--signal); stroke-width: 1.6; fill: none; stroke-dasharray: 2 5; stroke-linecap: round; }
+          .opt { stroke-dasharray: 6 6; }
+          .home { fill: none; stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 3 6; }
+          .lbl { font: 500 11px var(--mono); fill: var(--muted); letter-spacing: .08em; }
+        </style>
+        <rect class="home" x="204" y="16" width="738" height="398" rx="18"/>
+        <text class="lbl" x="222" y="40">YOUR HOME NETWORK</text>
+
+        <rect class="bx" x="12" y="58" width="178" height="62" rx="10"/>
+        <text class="t" x="32" y="84">Phone / browser</text><text class="s" x="32" y="104">away from home</text>
+        <rect class="bx" x="230" y="58" width="170" height="62" rx="10"/>
+        <text class="t" x="246" y="84">Phone / browser</text><text class="s" x="246" y="104">at home</text>
+        <rect class="bx" x="12" y="186" width="178" height="62" rx="10"/>
+        <text class="t" x="32" y="212">Reverse proxy</text><text class="s" x="32" y="232">e.g. Cloudflare Tunnel</text>
+
+        <rect class="bx hub" x="440" y="150" width="190" height="80" rx="12"/>
+        <text class="t" x="458" y="182">Hub</text><text class="s" x="458" y="202">web app · setup · OTA</text><text class="s" x="458" y="218">automations · history</text>
+        <rect class="bx" x="720" y="58" width="200" height="62" rx="10"/>
+        <text class="t" x="736" y="84">Media server</text><text class="s" x="736" y="104">live view · events · AI</text>
+
+        <rect class="bx" x="720" y="160" width="200" height="62" rx="10"/>
+        <text class="t" x="736" y="186">FreeRTOS camera</text><text class="s" x="736" y="206">e.g. ESP32-P4</text>
+        <rect class="bx" x="720" y="262" width="200" height="62" rx="10"/>
+        <text class="t" x="736" y="288">Linux camera</text><text class="s" x="736" y="308">e.g. BeagleY-AI · gateway</text>
+
+        <rect class="bx" x="440" y="300" width="190" height="62" rx="10"/>
+        <text class="t" x="456" y="326">Gateway</text><text class="s" x="456" y="346">Thread ↔ Wi-Fi / LAN</text>
+
+        <circle cx="260" cy="300" r="9" fill="var(--signal)"/><circle cx="318" cy="352" r="9" fill="var(--signal)"/>
+        <circle cx="250" cy="378" r="9" fill="var(--signal)"/><circle cx="352" cy="286" r="9" fill="var(--signal)"/>
+        <path class="mesh-ln" d="M260 300 318 352M318 352 250 378M260 300 352 286M352 286 318 352"/>
+        <text class="t" x="226" y="264">Sensors</text><text class="s" x="290" y="264">Thread mesh</text>
+
+        <path class="ln" d="M315 120 445 160" marker-end="url(#ar)"/>
+        <path class="ln opt" d="M101 120v62" marker-end="url(#ar)"/>
+        <path class="ln opt" d="M190 217h244" marker-end="url(#ar)"/>
+        <path class="ln" d="M630 170 716 104" marker-end="url(#ar)"/>
+        <path class="ln" d="M630 190h86" marker-end="url(#ar)"/>
+        <path class="ln" d="M630 214 716 282" marker-end="url(#ar)"/>
+        <path class="ln" d="M535 300v-66" marker-end="url(#ar)"/>
+        <path class="ln" d="M820 160v-36" marker-end="url(#ar)"/>
+        <path class="mesh-ln" d="M362 330 436 331"/>
+        <path class="mesh-ln" d="M325 360C420 410 640 410 716 312"/>
+      </svg>
+    </div>
+    <p class="arch-note">Solid lines stay on your network; the dotted amber lines are the Thread radio mesh.
+      Cameras send video to the media server; the hub keeps the control channel and its keys never leave it.</p>
+  </div>
+</section>
+
+<!-- ===== 6. hardware ===== -->
+<section class="slide alt" id="boards">
+  <div class="wrap">
+    <div class="eyebrow">Hardware</div>
+    <h2>Runs on boards you can buy today.</h2>
+    <p class="lede">No proprietary hub and no special radios. The manual walks you through each one.</p>
+    <div class="boards">
+      <div class="board"><div class="role">Hub</div><h3>Orange Pi 6 Plus</h3><p>Or any Debian machine. Its AI accelerator runs detection for the cameras.</p></div>
+      <div class="board"><div class="role">Linux camera</div><h3>BeagleY-AI</h3><p>IMX708 camera module, AI on the board, can act as the mesh gateway.</p></div>
+      <div class="board"><div class="role">FreeRTOS camera</div><h3>ESP32-P4</h3><p>A low-power camera with an ESP32-C6 for Wi-Fi 6 and Bluetooth.</p></div>
+      <div class="board"><div class="role">Sensors · gateway</div><h3>ESP32-C6</h3><p>Thread, Bluetooth and Wi-Fi in one module for sensors and the radio gateway.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 7. get involved ===== -->
+<section class="slide" id="join">
+  <div class="wrap involve">
+    <div>
+      <div class="eyebrow">Get involved</div>
+      <h2>Built in the open. Come build it with us.</h2>
+      <p class="lede">Follow the manual on your own hardware, report what was unclear, send a fix,
+        or bring nn to a board you love.</p>
+      <div class="ctas">
+        <a class="btn primary" href="https://docs.hexnok.com/about/contribute.html" target="_blank" rel="noopener">
+          <svg><use href="#i-book"/></svg>How to contribute</a>
+        <a class="btn ghost" href="https://github.com/NexusNoki" target="_blank" rel="noopener">
+          <svg><use href="#i-gh"/></svg>NexusNoki on GitHub</a>
+      </div>
+    </div>
+    <div>
+      <div class="roles" aria-label="Who can help">
+        <a href="https://docs.hexnok.com/about/contribute.html#everyday-users-test-this-manual" target="_blank" rel="noopener">Everyday users</a>
+        <a href="https://docs.hexnok.com/about/contribute.html#software-developers-fix-and-improve" target="_blank" rel="noopener">Software developers</a>
+        <a href="https://docs.hexnok.com/about/contribute.html#embedded-engineers-bring-nn-to-new-hardware" target="_blank" rel="noopener">Embedded engineers</a>
+        <a href="https://docs.hexnok.com/about/contribute.html#d-printing-experts-enclosures-and-mounts" target="_blank" rel="noopener">3D printing experts</a>
+        <a href="https://docs.hexnok.com/about/contribute.html#pcb-designers-purpose-built-boards" target="_blank" rel="noopener">PCB designers</a>
+        <a href="https://docs.hexnok.com/about/contribute.html#isp-tuning-experts-better-pictures" target="_blank" rel="noopener">ISP tuning experts</a>
+        <a href="https://docs.hexnok.com/about/contribute.html#ai-model-experts-better-detection" target="_blank" rel="noopener">AI model experts</a>
+        <a href="https://docs.hexnok.com/about/contribute.html#chip-designers-and-vendors-first-class-support" target="_blank" rel="noopener">Chip designers and vendors</a>
+        <a href="https://docs.hexnok.com/about/contribute.html#oems-and-odms-build-products-on-nn" target="_blank" rel="noopener">OEMs and ODMs</a>
+      </div>
+      <p class="honest">nn is young and made by a small team. Parts of it are still rough, and that is
+        where your help counts most. Every contribution is read, and your name stays on it.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="foot">
+    <span>nn · nexus noki. Code under Apache-2.0, manual under CC BY 4.0.</span>
+    <nav aria-label="Footer">
+      <a href="#home">Home</a>
+      <a href="https://github.com/NexusNoki" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://docs.hexnok.com/" target="_blank" rel="noopener">Documentation</a>
+      <a href="https://docs.hexnok.com/about/philosophy.html" target="_blank" rel="noopener">Philosophy</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // ---- hero mesh: hub, cameras, sensors with pulses along the links ----
+  var cv = document.getElementById('mesh');
+  var ctx = cv.getContext('2d');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var col = {}, nodes = [], edges = [], pulses = [], W = 0, H = 0, running = false, visible = true, last = 0, spawn = 0;
+
+  function readColors() {
+    var s = getComputedStyle(document.documentElement);
+    ['--accent', '--signal', '--ink-2', '--line', '--panel', '--muted'].forEach(function (k) { col[k] = s.getPropertyValue(k).trim(); });
+  }
+  function rnd(seed) { return function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+
+  function layout() {
+    var r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = r.width; H = r.height;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var R = rnd(7), cx = W * 0.5, cy = H * 0.5, m = Math.min(W, H);
+    nodes = [{ x: cx, y: cy, k: 'hub' }];
+    var cams = [[-0.34, -0.26], [0.34, -0.24], [0.02, 0.36]];
+    cams.forEach(function (c) { nodes.push({ x: cx + c[0] * W, y: cy + c[1] * H * 0.95, k: 'cam' }); });
+    var gw = { x: cx + 0.2 * W, y: cy + 0.2 * H, k: 'gw' }; nodes.push(gw);
+    var n = W < 420 ? 11 : 16, tries = 0;
+    while (nodes.length < 5 + n && tries++ < 800) {
+      var p = { x: W * (0.07 + R() * 0.86), y: H * (0.13 + R() * 0.72), k: 'sen' };
+      var ok = nodes.every(function (q) { return Math.hypot(q.x - p.x, q.y - p.y) > m * 0.13; });
+      if (ok) nodes.push(p);
+    }
+    edges = [];
+    function add(a, b, kind) { if (!edges.some(function (e) { return (e.a === a && e.b === b) || (e.a === b && e.b === a); })) edges.push({ a: a, b: b, kind: kind }); }
+    for (var i = 1; i <= 3; i++) add(0, i, 'lan');
+    add(0, 4, 'lan');
+    var mesh = nodes.map(function (q, i) { return i; }).filter(function (i) { return nodes[i].k === 'sen' || nodes[i].k === 'gw'; });
+    mesh.forEach(function (i) {
+      if (nodes[i].k === 'gw') return;
+      var near = mesh.filter(function (j) { return j !== i; }).sort(function (a, b) {
+        return Math.hypot(nodes[a].x - nodes[i].x, nodes[a].y - nodes[i].y) - Math.hypot(nodes[b].x - nodes[i].x, nodes[b].y - nodes[i].y);
+      }).slice(0, 2);
+      near.forEach(function (j) { add(i, j, 'mesh'); });
+    });
+    pulses = [];
+  }
+
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+    edges.forEach(function (e) {
+      var a = nodes[e.a], b = nodes[e.b];
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+      ctx.strokeStyle = e.kind === 'mesh' ? col['--signal'] : col['--muted'];
+      ctx.globalAlpha = e.kind === 'mesh' ? 0.45 : 0.4;
+      ctx.lineWidth = 1.4; ctx.setLineDash(e.kind === 'mesh' ? [2, 5] : []); ctx.stroke();
+    });
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+    pulses.forEach(function (p) {
+      var e = edges[p.e], a = nodes[p.rev ? e.b : e.a], b = nodes[p.rev ? e.a : e.b];
+      var x = a.x + (b.x - a.x) * p.t, y = a.y + (b.y - a.y) * p.t;
+      ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = e.kind === 'mesh' ? col['--signal'] : col['--accent']; ctx.fill();
+    });
+    nodes.forEach(function (q) {
+      if (q.k === 'hub') {
+        var pr = 20 + (reduce.matches ? 0 : 5 * Math.sin(t / 700));
+        ctx.beginPath(); ctx.arc(q.x, q.y, pr + 10, 0, Math.PI * 2); ctx.fillStyle = col['--accent']; ctx.globalAlpha = 0.12; ctx.fill();
+        ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(q.x, q.y, 16, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = col['--panel']; ctx.font = '700 13px "Bricolage Grotesque", system-ui, sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('nn', q.x, q.y + 1);
+      } else if (q.k === 'cam') {
+        ctx.fillStyle = col['--ink-2']; ctx.beginPath(); ctx.roundRect(q.x - 11, q.y - 8, 22, 16, 3); ctx.fill();
+        ctx.fillStyle = col['--panel']; ctx.beginPath(); ctx.arc(q.x, q.y, 4, 0, Math.PI * 2); ctx.fill();
+      } else if (q.k === 'gw') {
+        ctx.fillStyle = col['--panel']; ctx.strokeStyle = col['--signal']; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(q.x, q.y, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      } else {
+        ctx.fillStyle = col['--signal']; ctx.beginPath(); ctx.arc(q.x, q.y, 5, 0, Math.PI * 2); ctx.fill();
+      }
+    });
+  }
+
+  function frame(t) {
+    if (!running) return;
+    var dt = Math.min(64, t - (last || t)); last = t;
+    if (t > spawn) {
+      var i = Math.floor(Math.random() * edges.length);
+      pulses.push({ e: i, t: 0, rev: Math.random() < 0.5, v: edges[i].kind === 'mesh' ? 0.0011 : 0.0016 });
+      spawn = t + 260 + Math.random() * 260;
+    }
+    pulses.forEach(function (p) { p.t += p.v * dt; });
+    pulses = pulses.filter(function (p) { return p.t < 1; });
+    draw(t);
+    requestAnimationFrame(frame);
+  }
+  function setRun() {
+    var want = visible && !reduce.matches;
+    if (want && !running) { running = true; last = 0; requestAnimationFrame(frame); }
+    else if (!want) { running = false; draw(0); }
+  }
+  if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h) { this.rect(x, y, w, h); };
+  }
+  readColors(); layout(); draw(0); setRun();
+  window.addEventListener('resize', function () { layout(); draw(0); });
+  reduce.addEventListener && reduce.addEventListener('change', setRun);
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+  function recolor() { readColors(); draw(0); }
+  mq.addEventListener && mq.addEventListener('change', recolor);
+  new MutationObserver(recolor).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) { visible = es[0].isIntersecting; setRun(); }).observe(cv);
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { draw(0); });
+
+  // ---- slide pager + keyboard paging (the "powerpoint" feel) ----
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var dots = Array.prototype.slice.call(document.querySelectorAll('.pager a'));
+  function current() {
+    var y = window.innerHeight * 0.35, idx = 0;
+    slides.forEach(function (s, i) { if (s.getBoundingClientRect().top <= y) idx = i; });
+    return idx;
+  }
+  function mark() { var c = current(); dots.forEach(function (d, i) { d.classList.toggle('on', i === c); }); }
+  window.addEventListener('scroll', mark, { passive: true }); mark();
+  document.addEventListener('keydown', function (ev) {
+    if (ev.target.closest && ev.target.closest('input, textarea, select')) return;
+    var dir = (ev.key === 'PageDown' || ev.key === 'ArrowRight') ? 1 : (ev.key === 'PageUp' || ev.key === 'ArrowLeft') ? -1 : 0;
+    if (!dir) return;
+    var n = Math.max(0, Math.min(slides.length - 1, current() + dir));
+    ev.preventDefault(); slides[n].scrollIntoView({ behavior: reduce.matches ? 'auto' : 'smooth' });
+  });
+})();
+</script>
