@@ -3,7 +3,7 @@
 # NN_WEB_DOCS / NN_WEB_GITHUB override the documentation and GitHub links.
 set -eu
 cd "$(dirname "$0")"
-DOCS="${NN_WEB_DOCS:-https://docs.hexnok.com}"
+DOCS="${NN_WEB_DOCS:-https://docs.nexnok.com}"
 GH="${NN_WEB_GITHUB:-https://github.com/NexusNoki}"
 mkdir -p public
 {
@@ -13,5 +13,5 @@ mkdir -p public
   printf '</head>\n<body>\n'
   sed '1,/<\/style>/d' src/page.html
   printf '</body>\n</html>\n'
-} | sed -e "s#https://docs.hexnok.com#$DOCS#g" -e "s#https://github.com/NexusNoki#$GH#g" > public/index.html
+} | sed -e "s#https://docs.nexnok.com#$DOCS#g" -e "s#https://github.com/NexusNoki#$GH#g" > public/index.html
 echo "public/index.html ($(wc -c < public/index.html) bytes)"
